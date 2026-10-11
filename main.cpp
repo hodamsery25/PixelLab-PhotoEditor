@@ -458,6 +458,113 @@ void purple(Image& image) {
     }
 }
  
+// 17] Skew 
+void skew(Image& image) {
+    const double angle = 40.0;
+    const double radians = angle * 3.14159265358979323846 / 180.0;
+    const double skewFactor = tan(radians);
+
+    int originalWidth = image.width;
+    int originalHeight = image.height;
+
+    int newWidth = originalWidth +
+        static_cast<int>(ceil((originalHeight - 1) * skewFactor));
+
+    Image result(newWidth, originalHeight);
+
+    
+    for (int y = 0; y < originalHeight; y++) {
+        for (int x = 0; x < newWidth; x++) {
+            for (int c = 0; c < 3; c++) {
+                result.setPixel(x, y, c, 255);
+            }
+        }
+    }
+
+    
+    for (int y = 0; y < originalHeight; y++) {
+        for (int x = 0; x < originalWidth; x++) {
+            int newX = static_cast<int>(
+                round(x + y * skewFactor)
+            );
+
+            if (newX >= 0 && newX < newWidth) {
+                for (int c = 0; c < 3; c++) {
+                    result.setPixel(
+                        newX, y, c,
+                        image.getPixel(x, y, c)
+                    );
+                }
+            }
+        }
+    }
+
+    image = result;
+} 
+
+// 18] Oil Paint
+
+void oilPaint(Image& image) {
+    Image original = image;
+
+    const int radius = 3;
+    const int levels = 16;
+
+    for (int y = 0; y < image.height; y++) {
+        for (int x = 0; x < image.width; x++) {
+
+            int count[levels] = {};
+            int redSum[levels] = {};
+            int greenSum[levels] = {};
+            int blueSum[levels] = {};
+
+            // Examine the neighboring pixels
+            for (int ny = max(0, y - radius);
+                 ny <= min(image.height - 1, y + radius); ny++) {
+
+                for (int nx = max(0, x - radius);
+                     nx <= min(image.width - 1, x + radius); nx++) {
+
+                    int red = original(nx, ny, 0);
+                    int green = original(nx, ny, 1);
+                    int blue = original(nx, ny, 2);
+
+                    // Group the pixel by its average brightness
+                    int brightness = (red + green + blue) / 3;
+                    int bucket = brightness / 16;
+
+                    count[bucket]++;
+                    redSum[bucket] += red;
+                    greenSum[bucket] += green;
+                    blueSum[bucket] += blue;
+                }
+            }
+
+            // Find the most common brightness group
+            int bestBucket = 0;
+
+            for (int i = 1; i < levels; i++) {
+                if (count[i] > count[bestBucket]) {
+                    bestBucket = i;
+                }
+            }
+
+            // Replace the pixel with that group's average color
+            if (count[bestBucket] > 0) {
+                image(x, y, 0) =
+                    redSum[bestBucket] / count[bestBucket];
+
+                image(x, y, 1) =
+                    greenSum[bestBucket] / count[bestBucket];
+
+                image(x, y, 2) =
+                    blueSum[bestBucket] / count[bestBucket];
+            }
+        }
+    }
+}
+
+
  
 
 int main() {
@@ -562,8 +669,14 @@ int main() {
                 break;
 
             case 16:
+      
             case 17:
+               skew(image);
+               break;
             case 18:
+                oilPaint(image);
+                break; 
+
             default:
                 cout << "=> Invalid choice!\n";
                 break;
