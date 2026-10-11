@@ -2,10 +2,10 @@
 FCAI-CU > 2nd Level > OOP > Assignment 1 > Image Filters
 Section : (15,16)
 Team members :
-20250666 Malak Mohamed  Filters: 1]Gray scale     5]Flip       9]Merge       13]Fix natural sunlight
-20250693 Merna Hany     Filters: 2]Black & White  6]Rotate     10]Detect     14]Old TV Effect
-20250721 Hoda Ahmad     Filters: 3]Inverting      7]Brightness    11]Crop     15]purple effect
-20251051 Alaa Sayed    Filters: 4]Frame          8] Resize      12]Blur       16]Infrared photography
+20250666 Malak Mohamed  Filters: 1]Gray scale     5]Flip          9]Merge     13]Fix natural sunlight
+20250693 Merna Hany     Filters: 2]Black & White  6]Rotate       10]Detect    14]Old TV Effect
+20250721 Hoda Ahmad     Filters: 3]Inverting      7]Brightness   11]Crop      15]purple effect
+20251051 Alaa Sayed     Filters: 4]Frame          8] Resize      12]Blur      16]Infrared photography
 */
 
 #include "Image_Class.h"
@@ -184,13 +184,7 @@ void brightness(Image& image) {
 }
  
 // 8] Resize
-void Resize(Image& image) {
-  int w, h;
-  cout << " Original dimensions: [" << image.width << "x" << image.height << "]" << endl;
-  cout << " New width : ";
-  cin >> w;
-  cout << " New height : ";
-  cin >> h;
+void Resize(Image& image, int w, int h) {
   Image resized(w, h);
   for (int x = 0; x < w; x++) {
     for (int y = 0; y < h; y++) {
@@ -205,16 +199,19 @@ void Resize(Image& image) {
 }
    
 // 9] Merge
-void merge(Image& image) {  
+void merge(Image& image) {
     string photo2;
     cout << " Enter the second image name [with extension]: ";
     cin >> photo2;
+
     Image image2(photo2);
 
     int mergeWidth;
     int mergeHeight;
 
-    if (image.width != image2.width || image.height != image2.height) {
+    if (image.width != image2.width ||
+        image.height != image2.height) {
+
         int option;
 
         cout << "\nImages have different dimensions.\n";
@@ -226,30 +223,35 @@ void merge(Image& image) {
         if (option == 1) {
             mergeWidth = max(image.width, image2.width);
             mergeHeight = max(image.height, image2.height);
-            
-            
+
             Image resized1(mergeWidth, mergeHeight);
+
             for (int x = 0; x < mergeWidth; x++) {
                 for (int y = 0; y < mergeHeight; y++) {
                     int X = x * image.width / mergeWidth;
                     int Y = y * image.height / mergeHeight;
+
                     for (int c = 0; c < 3; c++) {
                         resized1(x, y, c) = image(X, Y, c);
                     }
                 }
             }
+
             image = resized1;
 
             Image resized2(mergeWidth, mergeHeight);
+
             for (int x = 0; x < mergeWidth; x++) {
                 for (int y = 0; y < mergeHeight; y++) {
                     int X = x * image2.width / mergeWidth;
                     int Y = y * image2.height / mergeHeight;
+
                     for (int c = 0; c < 3; c++) {
                         resized2(x, y, c) = image2(X, Y, c);
                     }
                 }
             }
+
             image2 = resized2;
         }
         else if (option == 2) {
@@ -272,7 +274,8 @@ void merge(Image& image) {
     }
 
     float alpha;
-    cout << "Enter the alpha value [0.0 - 1.0]: ";
+
+    cout << " Enter the alpha value [0.0 - 1.0]: ";
     cin >> alpha;
 
     if (alpha < 0.0f || alpha > 1.0f) {
@@ -280,19 +283,21 @@ void merge(Image& image) {
         return;
     }
 
-    for (int x = 0; x < mergeWidth; x++)  {
+    for (int x = 0; x < mergeWidth; x++) {
         for (int y = 0; y < mergeHeight; y++) {
             for (int c = 0; c < 3; c++) {
-                // Blend the pixels from both images using the alpha value
-                image(x, y, c) = (alpha * image(x, y, c)) + ((1.0f - alpha) * image2(x, y, c));
+                image(x, y, c) =
+                    (alpha * image(x, y, c)) +
+                    ((1.0f - alpha) * image2(x, y, c));
             }
         }
     }
-    
+
     cout << "Images merged successfully!\n";
-  } 
- 
-// 10] Detect Image Edges
+} 
+
+
+// 10] Detect Image Edges  
 void detectEdges(Image& image) {
     Image result(image.width, image.height);
 
@@ -402,48 +407,42 @@ void sunlight(Image& image) {
         for (int c = 0; c < image.height; c++) {
             image(r, c, 0) = min(255, static_cast<int>(image(r, c, 0) * 1.2));
             image(r, c, 1) = min(255, static_cast<int>(image(r, c, 1) * 1.2));
-            image(r, c, 2) = min(255, static_cast<int>(image(r, c, 2) * 1.2));
+            image(r, c, 2) /= 1.2; 
         }
     }
 }
 
 // 14] TV Scanlines
 void ScanlineTV(Image& image) {
-    Image result = image;
-
-    for (int row = 1; row < image.height - 1; ++row) {
-        for (int col = 1; col < image.width - 1; ++col) {
-            for (int channel = 0; channel < 3; ++channel) {
-                int sum = 0;
-
-                for (int y = -1; y <= 1; ++y) {
-                    for (int x = -1; x <= 1; ++x) {
-                        sum += image(col + x, row + y, channel);
-                    }
-                }
-
-                result(col, row, channel) = sum / 9;
-            }
+  Image result = image;
+  for (int row = 1; row < image.height - 1; ++row) {
+    for (int col = 1; col < image.width - 1; ++col) {
+      for (int channel = 0; channel < 3; ++channel) {
+        int sum = 0;
+        for (int y = -1; y <= 1; ++y) {
+          for (int x = -1; x <= 1; ++x) {
+            sum += image(col + x, row + y, channel);
+          }
         }
+        result(col, row, channel) = sum / 9;
+      }
     }
-
-    for (int row = 0; row < image.height; ++row) {
-        for (int col = 0; col < image.width; ++col) {
-            double red = result(col, row, 0) * 1.3;
-            double green = result(col, row, 1) * 1.3;
-            double blue = result(col, row, 2) * 1.3;
-
-            if (row % 2 == 0) {
-                red *= 0.15;
-                green *= 0.15;
-                blue *= 0.15;
-            }
-
-            image(col, row, 0) = min(255, static_cast<int>(red));
-            image(col, row, 1) = min(255, static_cast<int>(green));
-            image(col, row, 2) = min(255, static_cast<int>(blue));
-        }
+  }
+  for (int row = 0; row < image.height; ++row) {
+    for (int col = 0; col < image.width; ++col) {
+      double red = result(col, row, 0) * 1.3;
+      double green = result(col, row, 1) * 1.3;
+      double blue = result(col, row, 2) * 1.3;
+      if (row % 2 == 0) {
+        red *= 0.15;
+        green *= 0.15;
+        blue *= 0.15;
+      }
+      image(col, row, 0) = min(255, static_cast<int>(red));
+      image(col, row, 1) = min(255, static_cast<int>(green));
+      image(col, row, 2) = min(255, static_cast<int>(blue));
     }
+  }
 }
 
 // 15] Purple
@@ -577,7 +576,7 @@ int main() {
     getline(cin, photo);
 
     Image image(photo);
-    Image tempimage;
+    Image tempimage; 
   string tempphoto = "tempphoto.jpg"; 
 
   cout << "\n                          ~< Filters List >~            \n\n";
@@ -590,99 +589,83 @@ int main() {
   cout << "                   13] sunlight        14] TV effect      \n";
   cout << "                   15] Purple          16] Infrared       \n";
   cout << "                   17] Skew            18] Oil paint      \n\n";
-
-    do {
+  do {
         cout << " chose Filter's number: ";
         cin >> choice;
-
         switch (choice) {
             case 1:
                 grayscale(image);
                 break;
-
             case 2:
                 Black_White(image);
                 break;
-
             case 3:
                 invert(image);
                 break;
-
             case 4:
                 frame(image);
                 break;
-
-            case 5: {
+            case 5: 
                 int M;
                 cout << " 1] Horizontal flip   2] Vertical flip\n ";
                 cin >> M;
-
                 if (M == 1)
-                    horizontal_flip(image);
+                  horizontal_flip(image);
                 else if (M == 2)
-                    vertical_flip(image);
+                  vertical_flip(image);
                 else
-                    cout << "Invalid flip choice!\n";
-
+                  cout << "Invalid flip choice!\n";
                 break;
-            }
-
             case 6:
                 Rotate(image);
                 break;
-
             case 7:
                 brightness(image);
                 break;
-
             case 8:
-                Resize(image);
+                int w, h;
+                cout << " Original dimensions: [" << image.width << "x" << image.height << "]" << endl;
+                cout << " New width : ";
+                cin >> w;
+                cout << " New height : ";
+                cin >> h;
+                Resize(image, w, h);
                 break;
-
             case 9:
-                merge(image);
+                merge(image); 
                 break;
-
             case 10:
                 detectEdges(image);
                 break;
-
             case 11:
                 crop(image);
                 break;
-
             case 12:
-                // Blur filter goes here if implemented
-                cout << "Blur filter is not connected yet.\n";
                 break;
-
             case 13:
                 sunlight(image);
                 break;
-
             case 14:
                 ScanlineTV(image);
                 break;
-
             case 15:
                 purple(image);
                 break;
-
             case 16:
-      
             case 17:
-               skew(image);
-               break;
+                skew(image);
+                break;
+
             case 18:
                 oilPaint(image);
-                break; 
+                break;
 
             default:
                 cout << "=> Invalid choice!\n";
                 break;
         }
 
-                choice = 0;
+        choice = 0;
 
         tempimage = image;
         tempimage.saveImage(tempphoto);
@@ -713,4 +696,4 @@ int main() {
     cout << "\n                << Thank you for using our program! >>\n" << endl;
 
     return 0;
-} 
+}  
