@@ -401,6 +401,29 @@ void crop(Image& image) {
   }
   image = cropped;
 }
+
+// 12] blur
+void blur(Image& image) {
+    Image blurred = image;
+
+    for (int c = 2; c < image.height - 2; ++c) {
+        for (int r = 2; r < image.width - 2; ++r) {
+            for (int ch = 0; ch < 3; ++ch) {
+                int sum = 0;
+
+                for (int i = -2; i <= 2; ++i) {
+                    for (int j = -2; j <= 2; ++j) {
+                        sum += image(r + j, c + i, ch);
+                    }
+                }
+                blurred(r, c, ch) = sum / 25;
+            }
+        }
+    }
+
+    image = blurred;
+}
+
 // 13] Sunlight
 void sunlight(Image& image) {
     for (int r = 0; r < image.width; r++) {
