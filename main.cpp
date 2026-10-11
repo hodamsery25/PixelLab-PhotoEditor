@@ -220,7 +220,7 @@ void merge(Image& image) {
         cout << "\nImages have different dimensions.\n";
         cout << "1. Resize both images and merge\n";
         cout << "2. Merge only the overlapping area\n";
-        cout << "Choose an option (1 or 2): ";
+        cout << "Choose an option: ";
         cin >> option;
 
         if (option == 1) {
@@ -280,7 +280,6 @@ void merge(Image& image) {
         return;
     }
 
-}
     for (int x = 0; x < mergeWidth; x++)  {
         for (int y = 0; y < mergeHeight; y++) {
             for (int c = 0; c < 3; c++) {
@@ -291,81 +290,88 @@ void merge(Image& image) {
     }
     
     cout << "Images merged successfully!\n";
+  } 
  
-// 10 detect image edges
+// 10] Detect Image Edges
 void detectEdges(Image& image) {
-  Image result(image.width, image.height);
-  int Gx[3][3] = {
-    {-1, 0, 1},
-    {-2, 0, 2},
-    {-1, 0, 1}  
-  };
-  float alpha;
-  cout << " Enter the alpha value [0.0 - 1.0]: ";
-  cin >> alpha;
-  if (alpha < 0.0f || alpha > 1.0f) {
-    cout << "=>Error: Alpha value must be between 0.0 and 1.0.\n";
-    return;
-  }
-  for (int x = 0; x < image.width; x++) {
+    Image result(image.width, image.height);
+
+    int Gx[3][3] = {
+        {-1, 0, 1},
+        {-2, 0, 2},
+        {-1, 0, 1}
+    };
+
+    int Gy[3][3] = {
+        {-1, -2, -1},
+        { 0,  0,  0},
+        { 1,  2,  1}
+    };
+
+    // Convert the image to grayscale
     for (int y = 0; y < image.height; y++) {
-      for (int c = 0; c < 3; c++) {
-        unsigned char pixel1 = image.getPixel(x, y, c);
-        unsigned char pixel2 = image2.getPixel(x, y, c);
-        unsigned char mergedPixel = static_cast<unsigned char>(alpha * pixel1 + (1 - alpha) * pixel2);
-        image.setPixel(x, y, c, mergedPixel);
-      }
-    }
-  }};
-  int Gy[3][3] = {
-    {-1, -2, -1},
-    {0, 0, 0},
-    {1, 2, 1}
-  };
-  for (int y = 0; y < image.height; y++) {
-    for (int x = 0; x < image.width; x++) {
-      int r = image.getPixel(x, y, 0);
-      int g = image.getPixel(x, y, 1);
-      int b = image.getPixel(x, y, 2);
-      int gray = 0.299 * r + 0.587 * g + 0.114 * b;
-      image.setPixel(x, y, 0, gray);
-      image.setPixel(x, y, 1, gray);
-      image.setPixel(x, y, 2, gray);
-    }
-  }
-  int threshold = 100;
-  for (int y = 1; y < image.height - 1; y++) {
-    for (int x = 1; x < image.width - 1; x++) {
-      int sumX = 0;
-      int sumY = 0;
-      for (int j = -1; j <= 1; j++) {
-        for (int i = -1; i <= 1; i++) {
-          int val = image.getPixel(x + i, y + j, 0);
-          sumX += val * Gx[j + 1][i + 1];
-          sumY += val * Gy[j + 1][i + 1];
+        for (int x = 0; x < image.width; x++) {
+            int r = image.getPixel(x, y, 0);
+            int g = image.getPixel(x, y, 1);
+            int b = image.getPixel(x, y, 2);
+
+            int gray = static_cast<int>(
+                0.299 * r + 0.587 * g + 0.114 * b
+            );
+
+            image.setPixel(x, y, 0, gray);
+            image.setPixel(x, y, 1, gray);
+            image.setPixel(x, y, 2, gray);
         }
-      }
-      int magnitude = sqrt(sumX * sumX + sumY * sumY);
-      int color = (magnitude > threshold) ? 0 : 255;
-      result.setPixel(x, y, 0, color);
-      result.setPixel(x, y, 1, color);
-      result.setPixel(x, y, 2, color);
     }
-  }
-  for (int x = 0; x < image.width; x++) {
-    for (int c = 0; c < 3; c++) {
-      result.setPixel(x, 0, c, 255);
-      result.setPixel(x, image.height - 1, c, 255);
+
+    int threshold = 100;
+
+    // Detect edges using horizontal and vertical gradients
+    for (int y = 1; y < image.height - 1; y++) {
+        for (int x = 1; x < image.width - 1; x++) {
+            int sumX = 0;
+            int sumY = 0;
+
+            for (int j = -1; j <= 1; j++) {
+                for (int i = -1; i <= 1; i++) {
+                    int val = image.getPixel(x + i, y + j, 0);
+
+                    sumX += val * Gx[j + 1][i + 1];
+                    sumY += val * Gy[j + 1][i + 1];
+                }
+            }
+
+            int magnitude = static_cast<int>(
+                sqrt(sumX * sumX + sumY * sumY)
+            );
+
+            int color = (magnitude > threshold) ? 0 : 255;
+
+            result.setPixel(x, y, 0, color);
+            result.setPixel(x, y, 1, color);
+            result.setPixel(x, y, 2, color);
+        }
     }
-  }
-  for (int y = 0; y < image.height; y++) {
-    for (int c = 0; c < 3; c++) {
-      result.setPixel(0, y, c, 255);
-      result.setPixel(image.width - 1, y, c, 255);
+
+    // Set the top and bottom borders to white
+    for (int x = 0; x < image.width; x++) {
+        for (int c = 0; c < 3; c++) {
+            result.setPixel(x, 0, c, 255);
+            result.setPixel(x, image.height - 1, c, 255);
+        }
     }
-  }
-  image = result;
-}
+
+    // Set the left and right borders to white
+    for (int y = 0; y < image.height; y++) {
+        for (int c = 0; c < 3; c++) {
+            result.setPixel(0, y, c, 255);
+            result.setPixel(image.width - 1, y, c, 255);
+        }
+    }
+
+    image = result;
+}  
 
 // 11] Crop
 void crop(Image& image) {
@@ -451,6 +457,8 @@ void purple(Image& image) {
         }
     }
 }
+ 
+ 
 
 int main() {
     string photo;
@@ -463,7 +471,7 @@ int main() {
 
     Image image(photo);
     Image tempimage;
-    string tempphoto = "tempphoto.jpg"; 
+  string tempphoto = "tempphoto.jpg"; 
 
   cout << "\n                          ~< Filters List >~            \n\n";
   cout << "                    1] Gray scale       2] Black & White  \n";
@@ -561,18 +569,16 @@ int main() {
                 break;
         }
 
-        choice = 0; 
+                choice = 0;
 
-    tempimage = image;
-    tempimage.saveImage(tempphoto);
-    system(tempphoto.c_str());
-    cout << " Do you want to apply another filter?\n ";
-    cin >> answer;
-    remove("tempphoto.jpg");
-  } while (answer[0] == 'y' || answer[0] == 'Y');
+        tempimage = image;
+        tempimage.saveImage(tempphoto);
+        system(tempphoto.c_str());
 
-  cout << " Do you want to save as a copy ?\n ";
-  cin >> answer;
+        cout << " Do you want to apply another filter?\n ";
+        cin >> answer;
+        remove("tempphoto.jpg");
+
     } while (answer[0] == 'y' || answer[0] == 'Y');
 
     remove("tempphoto.jpg");
@@ -592,6 +598,6 @@ int main() {
 
     cout << "\n >> Image saved successfully! " << endl;
     cout << "\n                << Thank you for using our program! >>\n" << endl;
+
     return 0;
 } 
-    
