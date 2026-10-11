@@ -402,7 +402,7 @@ void crop(Image& image) {
   image = cropped;
 }
 
-// 12] blur
+// 12] Blur
 void blur(Image& image) {
     Image blurred = image;
 
@@ -500,7 +500,17 @@ void purple(Image& image) {
         }
     }
 }
- 
+
+// 16] Infrared photography
+void infrared(Image& image){
+  invert(image);
+  for(int r=0; r < image.width; r++ ){
+    for(int c=0; c < image.height; c++ ){
+      image(r,c,0) = 255;
+    }
+  }
+}
+
 // 17] Skew 
 void skew(Image& image) {
     const double angle = 40.0;
@@ -685,6 +695,7 @@ int main() {
                 crop(image);
                 break;
             case 12:
+                blur(image);
                 break;
             case 13:
                 sunlight(image);
@@ -696,6 +707,7 @@ int main() {
                 purple(image);
                 break;
             case 16:
+                infrared(image);
             case 17:
                 skew(image);
                 break;
