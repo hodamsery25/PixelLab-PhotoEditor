@@ -440,44 +440,6 @@ void sunlight(Image& image) {
 void applyScanlineTVFilter(Image &image)
 {
     Image result = image;
-
-    for (int r = 1; r < image.height - 1; r++)
-    {
-        for (int c = 1; c < image.width - 1; c++)
-        {
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int sum = 0;
-
-                for (int y = -1; y <= 1; y++)
-                {
-                    for (int x = -1; x <= 1; x++)
-                    {
-                        sum += image(c + x, r + y, channel);
-                    }
-                }
-
-                result(c, r, channel) = sum / 9;
-            }
-        }
-    }
-
-    for (int r = 0; r < image.height; r++)
-    {
-        for (int c = 0; c < image.width; c++)
-        {
-            for (int channel = 0; channel < 3; channel++)
-            {
-                int value = result(c, r, channel) * 1.3;
-
-                if (value > 255)
-                    value = 255;
-
-                image(c, r, channel) = value;
-            }
-        }
-    }
-
     for (int r = 0; r < image.height; r += 2)
     {
         for (int c = 0; c < image.width; c++)
