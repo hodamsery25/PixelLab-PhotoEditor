@@ -388,16 +388,13 @@ void ScanlineTV(Image &image){
 
 // 15] Purple
 void purple(Image& image) {
-    for (int r = 0; r < image.width; r++) {
-        for (int c = 0; c < image.height; c++) {
-            image(r, c, 1) /= 3;
-            image(r, c, 2) = min(
-                255, static_cast<int>(image(r, c, 2) * 1.3)
-            );
-        }
+  for (int r = 0; r < image.width; r++) {
+    for (int c = 0; c < image.height; c++) {
+      image(r, c, 0) /= 1.2;
+      image(r, c, 1) /= 3;
     }
+  }
 }
-
 // 16] Infrared photography
 void infrared(Image& image){
   invert(image);
@@ -514,7 +511,6 @@ void oilPaint(Image& image) {
     }
 }
 
-
 void Menu(){
   cout << "\n                          ~< Filters List >~            \n\n";
   cout << "                    1] Gray scale       2] Black & White  \n";
@@ -526,16 +522,18 @@ void Menu(){
   cout << "                   13] sunlight        14] TV effect      \n";
   cout << "                   15] Purple          16] Infrared       \n";}
 
-void New(Image& image){
-  cout << " Enter Image's Name [with extension]: ";
+void New(Image& image, string photo){
+  cout << " Enter New Image's Name [with extension]: ";
+  cin.ignore();
   getline(cin, photo);
   image.loadNewImage(photo);
 }
-void save(Image& image){
+
+void save(Image& image, string photo, string& answer){
+  string newphoto;
   cout << " Do you want to save as a copy?\n ";
   cin >> answer;
   if (answer[0] == 'y' || answer[0] == 'Y') {
-    string newphoto;
     cout << "\n Enter The New Name [with wanted extension]: ";
     cin.ignore();
     getline(cin, newphoto);
@@ -544,21 +542,24 @@ void save(Image& image){
   else   image.saveImage(photo);
   cout << "\n >> Image saved successfully! " << endl;
 }
-  
+
+
 int main() {
   Image image;
-  string photo;
   int choice;
   string answer = "";
+  string photo;
   cout << "             >> Welcome to <PixelLab> Photo Editor! <<\n\n";
-  New();
+  cout << " Enter Image's Name [with extension]: ";
+  getline(cin, photo);
+  image.loadNewImage(photo);
   do {
-    Menu();      
+    Menu();
     if(choice!= 00){
-      cout << "                   20 ] New photo       21 ] save photo     \n"; 
-      cout << "                               00 ] Exit     \n"
+      cout << "                   20> New Image       21> save Image     \n";
+      cout << "                               00> Exit     \n";
     }
-    cout << "\n chose Option's number : ";
+    cout << "\n Enter your choice : ";
     cin >> choice;
     switch (choice) {
        case 1:
@@ -619,25 +620,28 @@ int main() {
        case 15:
           purple(image);
           break;
+       case 16:
+          infrared(image);
+          break;
        case 00:
-           cout << " Do you want to save Modified photo?\n ";
+           cout << " Do you want to save Modified Image?\n ";
            cin >> answer;
-           if (answer[0] == 'y' || answer[0] == 'Y') save();
-           break;   
+           if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+           break;
        case 20:
-           cout << " Do you want to save Modified photo?\n ";
+           cout << " Do you want to save Modified Image?\n ";
            cin >> answer;
-           if (answer[0] == 'y' || answer[0] == 'Y') save();
-           New();
+           if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+           New(image, photo);
            break;
        case 21:
-           save();
+           save(image, photo, answer);
            break;
        default:
           cout << "=> Invalid choice!\n";
           break;
-    } 
-    if(choice != 00 ||choice != 20){
+    }
+    if(choice != 00 && choice < 20){
       string tempphoto = "tempphoto.jpg";
       Image tempimage = image;
       tempimage.saveImage(tempphoto);
