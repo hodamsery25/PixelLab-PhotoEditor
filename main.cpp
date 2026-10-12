@@ -11,6 +11,7 @@ Team members :
 #include "Image_Class.h"
 #include <filesystem>
 
+
 using namespace std;
 
 // 1] gray scale
@@ -236,7 +237,7 @@ void Merge(Image& image) {
   cout << " Images merged successfully!\n";
 }
 
-// 10] Detect Image Edges  
+// 10] Detect Image Edges
 void detectEdges(Image& image) {
     Image result(image.width, image.height);
 
@@ -315,11 +316,12 @@ void detectEdges(Image& image) {
     }
 
     image = result;
-}  
+}
 
 // 11] Crop
 void crop(Image& image) {
   int x, y, w, h;
+  cout << " Original dimensions: [" << image.width << "x" << image.height << "]" << endl;
   cout << "=Detect starting point (x,y) [will be upper left corner]";
   cout << "\n (x) coordinate: ";
   cin >> x;
@@ -366,7 +368,7 @@ void sunlight(Image& image) {
     for (int c = 0; c < image.height; c++) {
       image(r, c, 0) = min(255, static_cast<int>(image(r, c, 0) * 1.2));
       image(r, c, 1) = min(255, static_cast<int>(image(r, c, 1) * 1.2));
-      image(r, c, 2) /= 1.2; 
+      image(r, c, 2) /= 1.2;
     }
   }
 }
@@ -402,7 +404,7 @@ void infrared(Image& image){
   }
 }
 
-// 17] Skew 
+// 17] Skew
 void skew(Image& image) {
     const double angle = 40.0;
     const double radians = angle * 3.14159265358979323846 / 180.0;
@@ -416,7 +418,7 @@ void skew(Image& image) {
 
     Image result(newWidth, originalHeight);
 
-    
+
     for (int y = 0; y < originalHeight; y++) {
         for (int x = 0; x < newWidth; x++) {
             for (int c = 0; c < 3; c++) {
@@ -425,7 +427,7 @@ void skew(Image& image) {
         }
     }
 
-    
+
     for (int y = 0; y < originalHeight; y++) {
         for (int x = 0; x < originalWidth; x++) {
             int newX = static_cast<int>(
@@ -444,7 +446,7 @@ void skew(Image& image) {
     }
 
     image = result;
-} 
+}
 
 // 18] Oil Paint
 
@@ -550,6 +552,7 @@ int main() {
   cout << " Enter Image's Name [with extension]: ";
   getline(cin, photo);
   image.loadNewImage(photo);
+  bool s=0;
   do {
     Menu();
     if(choice!= 00){
@@ -621,29 +624,35 @@ int main() {
           infrared(image);
           break;
        case 00:
-           cout << " Do you want to save Modified Image?\n ";
-           cin >> answer;
-           if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+           if(s==0) {
+             cout << " Do you want to save Modified Image?\n ";
+             cin >> answer;
+             if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+           }
            break;
        case 20:
-           cout << " Do you want to save Modified Image?\n ";
-           cin >> answer;
-           if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+           if(s==0) {
+             cout << " Do you want to save Modified Image?\n ";
+             cin >> answer;
+             if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+           }
            New(image, photo);
            break;
        case 21:
            save(image, photo, answer);
+           s=1;
            break;
        default:
           cout << "=> Invalid choice!\n";
           break;
     }
-    if(choice != 00 && choice < 20){
       string tempphoto = "tempphoto.jpg";
       Image tempimage = image;
       tempimage.saveImage(tempphoto);
-      system(tempphoto.c_str());
+      if(!(choice == 00 || choice == 20 || choice == 21)){
+       system(tempphoto.c_str());
     }
+  if(choice != 21)s=0;
   }
   while (choice != 00);
   remove("tempphoto.jpg");
