@@ -10,7 +10,6 @@ Team members :
 
 #include "Image_Class.h"
 #include <filesystem>
-#include <iostream>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -69,7 +68,7 @@ void frame(Image& image) {
   for (int r = 0; r < fr.width; r++) {
     for (int c = 0; c < fr.height; c++) {
       for (int N = 0; N < 3; N++) {
-        fr(r, c, N) = 0;
+        fr(r, c, N) = 150;
       }
     }
   }
@@ -83,46 +82,31 @@ void frame(Image& image) {
   image = fr;
 }
 
-// 5.1] Horizontal Flip
+//// 5.1] Horizontal Flip
 void horizontal_flip(Image& image) {
-  for (int y = 0; y < image.height; ++y) {
-    for (int x = 0; x < image.width / 2; ++x) {
-      unsigned char r1 = image.getPixel(x, y, 0);
-      unsigned char g1 = image.getPixel(x, y, 1);
-      unsigned char b1 = image.getPixel(x, y, 2);
-      unsigned char r2 = image.getPixel(image.width - x - 1, y, 0);
-      unsigned char g2 = image.getPixel(image.width - x - 1, y, 1);
-      unsigned char b2 = image.getPixel(image.width - x - 1, y, 2);
-      image.setPixel(x, y, 0, r2);
-      image.setPixel(x, y, 1, g2);
-      image.setPixel(x, y, 2, b2);
-      image.setPixel(image.width - x - 1, y, 0, r1);
-      image.setPixel(image.width - x - 1, y, 1, g1);
-      image.setPixel(image.width - x - 1, y, 2, b1);
+  int h = image.height;
+  int w = image.width-1;
+  for (int y = 0; y < h ; ++y) {
+    for (int x = 0; x < (w+1)/2 ; ++x) {
+      for(int N=0; N<3; N++){
+        swap( image(x, y, N) , image(w-x, y, N) );
+      }
     }
   }
 }
 
-// 5.2] Vertical Flip
-void vertical_flip(Image& image) {
-  for (int y = 0; y < image.height / 2; ++y) {
-    for (int x = 0; x < image.width; ++x) {
-      unsigned char r1 = image.getPixel(x, y, 0);
-      unsigned char g1 = image.getPixel(x, y, 1);
-      unsigned char b1 = image.getPixel(x, y, 2);
-      unsigned char r2 = image.getPixel(x, image.height - y - 1, 0);
-      unsigned char g2 = image.getPixel(x, image.height - y - 1, 1);
-      unsigned char b2 = image.getPixel(x, image.height - y - 1, 2);
-      image.setPixel(x, y, 0, r2);
-      image.setPixel(x, y, 1, g2);
-      image.setPixel(x, y, 2, b2);
-      image.setPixel(x, image.height - y - 1, 0, r1);
-      image.setPixel(x, image.height - y - 1, 1, g1);
-      image.setPixel(x, image.height - y - 1, 2, b1);
+//// 5.2] Vertical Flip
+void vertical_flip(Image& image){
+  int h = image.height-1;
+  int w = image.width;
+  for (int y = 0; y <  (h+1)/2; ++y) {
+    for (int x = 0; x < w; ++x) {
+      for(int N=0; N<3; N++){
+        swap( image(x, y, N) , image(x, h-y, N) );
+      }
     }
   }
 }
-
 // 6] Rotation
 void Rotate(Image& image) {
   int angle;
@@ -133,57 +117,57 @@ void Rotate(Image& image) {
     for (int x = 0; x < image.width; ++x) {
       for (int y = 0; y < image.height; ++y) {
         for (int c = 0; c < 3; ++c) {
-          rotated(y, image.width - 1 - x, c) = image(x, y, c);
+          rotated (y, image.width - 1 - x, c) = image(x, y, c);
         }
       }
     }
     image = rotated;
-  } else if (angle == 180) {
+  }
+  else if (angle == 180) {
     Image rotated(image.width, image.height);
     for (int x = 0; x < image.width; ++x) {
       for (int y = 0; y < image.height; ++y) {
         for (int c = 0; c < 3; ++c) {
-          rotated(image.width - 1 - x, image.height - 1 - y, c) = image(x, y, c);
+          rotated (image.width - 1 - x, image.height - 1 - y, c) = image(x, y, c);
         }
       }
     }
     image = rotated;
-  } else if (angle == 270) {
+  }
+  else if (angle == 270) {
     Image rotated(image.height, image.width);
     for (int x = 0; x < image.width; ++x) {
       for (int y = 0; y < image.height; ++y) {
         for (int c = 0; c < 3; ++c) {
-          rotated(image.height - 1 - y, x, c) = image(x, y, c);
+          rotated (image.height - 1 - y, x, c) = image(x, y, c);
         }
       }
     }
     image = rotated;
-  } else {
-    cout << "=>Invalid angle! \n ";
   }
+  else  cout << "=>Invalid angle! \n ";
 }
 
-// 7] Brightness
-void brightness(Image& image) {
+//// 7] Brightness
+void brightness (Image& image){
   int M;
   float v;
-  cout << " 1] Increase Brightness   2]: Decrease Brightness\n ";
+  cout<< " 1] Increase Brightness   2]: Decrease Brightness\n ";
   cin >> M;
-  cout << " Enter the percentage [0~300%]: ";
+  cout<< " Enter the percentage [0~300%]: ";
   cin >> v;
-  v = v / 100 + 1;
-  if (M == 2) v = 1 / v;
-  for (int r = 0; r < image.width; r++) {
-    for (int c = 0; c < image.height; c++) {
-      for (int N = 0; N < 3; N++) {
-        if (image(r, c, N) * v > 255) image(r, c, N) = 255;
-        else image(r, c, N) *= v;
+  v = v/100+1 ;   if(M==2) v = 1/v;
+  for(int r=0; r<image.width; r++ ){
+    for(int c=0; c<image.height; c++ ){
+      for(int N=0; N<3; N++){
+        if( image(r,c,N)*v > 255 ) image(r,c,N)=255;
+        else image(r,c,N)*= v ;
       }
     }
   }
 }
- 
-// 8] Resize
+
+//// 8] Resize
 void Resize(Image& image, int w, int h) {
   Image resized(w, h);
   for (int x = 0; x < w; x++) {
@@ -197,105 +181,63 @@ void Resize(Image& image, int w, int h) {
   }
   image = resized;
 }
-   
-// 9] Merge
-void merge(Image& image) {
-    string photo2;
-    cout << " Enter the second image name [with extension]: ";
-    cin >> photo2;
 
-    Image image2(photo2);
+//// 9] Merge
+void Merge(Image& image) {
+  string photo2;
+  cout << " Enter the second image name [with extension]: ";
+  cin >> photo2;
+  Image image2(photo2);
+  int mergeWidth;
+  int mergeHeight;
 
-    int mergeWidth;
-    int mergeHeight;
-
-    if (image.width != image2.width ||
-        image.height != image2.height) {
-
-        int option;
-
-        cout << "\nImages have different dimensions.\n";
-        cout << "1. Resize both images and merge\n";
-        cout << "2. Merge only the overlapping area\n";
-        cout << "Choose an option: ";
-        cin >> option;
-
-        if (option == 1) {
-            mergeWidth = max(image.width, image2.width);
-            mergeHeight = max(image.height, image2.height);
-
-            Image resized1(mergeWidth, mergeHeight);
-
-            for (int x = 0; x < mergeWidth; x++) {
-                for (int y = 0; y < mergeHeight; y++) {
-                    int X = x * image.width / mergeWidth;
-                    int Y = y * image.height / mergeHeight;
-
-                    for (int c = 0; c < 3; c++) {
-                        resized1(x, y, c) = image(X, Y, c);
-                    }
-                }
-            }
-
-            image = resized1;
-
-            Image resized2(mergeWidth, mergeHeight);
-
-            for (int x = 0; x < mergeWidth; x++) {
-                for (int y = 0; y < mergeHeight; y++) {
-                    int X = x * image2.width / mergeWidth;
-                    int Y = y * image2.height / mergeHeight;
-
-                    for (int c = 0; c < 3; c++) {
-                        resized2(x, y, c) = image2(X, Y, c);
-                    }
-                }
-            }
-
-            image2 = resized2;
-        }
-        else if (option == 2) {
-            mergeWidth = min(image.width, image2.width);
-            mergeHeight = min(image.height, image2.height);
-        }
-        else {
-            cout << "Invalid option!\n";
-            return;
-        }
+  if (image.width != image2.width || image.height != image2.height) {
+    int option;
+    cout << "\n Images have different dimensions.\n";
+    cout << " 1] Resize both images and merge\n";
+    cout << " 2] Merge only the overlapping area\n";
+    cout << " Choose an option: ";
+    cin >> option;
+    if (option == 1) {
+      mergeWidth  = max(image.width, image2.width);
+      mergeHeight = max(image.height, image2.height);
+      Resize(image, mergeWidth, mergeHeight);
+      Resize(image2, mergeWidth, mergeHeight);
+    }
+    else if (option == 2) {
+      mergeWidth  = min(image.width, image2.width);
+      mergeHeight = min(image.height, image2.height);
     }
     else {
-        mergeWidth = image.width;
-        mergeHeight = image.height;
-    }
-
-    if (mergeWidth <= 0 || mergeHeight <= 0) {
-        cout << "Invalid image dimensions.\n";
+        cout << "=>Invalid option!\n";
         return;
     }
-
-    float alpha;
-
-    cout << " Enter the alpha value [0.0 - 1.0]: ";
-    cin >> alpha;
-
-    if (alpha < 0.0f || alpha > 1.0f) {
-        cout << "Error: Alpha value must be between 0.0 and 1.0.\n";
-        return;
+  }
+  else {
+    mergeWidth  = image.width;
+    mergeHeight = image.height;
+  }
+  if (mergeWidth <= 0 || mergeHeight <= 0) {
+    cout << "=>Invalid image dimensions.\n";
+    return;
     }
 
-    for (int x = 0; x < mergeWidth; x++) {
-        for (int y = 0; y < mergeHeight; y++) {
-            for (int c = 0; c < 3; c++) {
-                image(x, y, c) =
-                    (alpha * image(x, y, c)) +
-                    ((1.0f - alpha) * image2(x, y, c));
-            }
-        }
+  float alpha;
+  cout << " Enter the alpha value [0.0 - 1.0]: ";
+  cin >> alpha;
+  if (alpha < 0.0f || alpha > 1.0f) {
+  cout << "=>Error: Alpha value must be between 0.0 and 1.0.\n";
+  return;
+  }
+  for (int x = 0; x < mergeWidth; x++)  {
+    for (int y = 0; y < mergeHeight; y++) {
+      for (int c = 0; c < 3; c++) {
+        image(x, y, c) = (alpha * image(x, y, c)) + ((1.0f - alpha) * image2(x, y, c));
+      }
     }
-
-    cout << "Images merged successfully!\n";
-} 
-
+  }
+  cout << " Images merged successfully!\n";
+}
 
 // 10] Detect Image Edges  
 void detectEdges(Image& image) {
@@ -404,51 +346,44 @@ void crop(Image& image) {
 
 // 12] Blur
 void blur(Image& image) {
-    Image blurred = image;
-
-    for (int c = 2; c < image.height - 2; ++c) {
-        for (int r = 2; r < image.width - 2; ++r) {
-            for (int ch = 0; ch < 3; ++ch) {
-                int sum = 0;
-
-                for (int i = -2; i <= 2; ++i) {
-                    for (int j = -2; j <= 2; ++j) {
-                        sum += image(r + j, c + i, ch);
-                    }
-                }
-                blurred(r, c, ch) = sum / 25;
-            }
+  Image blurred = image;
+  for (int c = 2; c < image.height - 2; ++c) {
+    for (int r = 2; r < image.width - 2; ++r) {
+      for (int ch = 0; ch < 3; ++ch) {
+        int sum = 0;
+        for (int i = -2; i <= 2; ++i) {
+          for (int j = -2; j <= 2; ++j) {
+            sum += image(r + j, c + i, ch);
+          }
         }
+        blurred(r, c, ch) = sum / 25;
+      }
     }
-
-    image = blurred;
+  }
+  image = blurred;
 }
 
 // 13] Sunlight
 void sunlight(Image& image) {
-    for (int r = 0; r < image.width; r++) {
-        for (int c = 0; c < image.height; c++) {
-            image(r, c, 0) = min(255, static_cast<int>(image(r, c, 0) * 1.2));
-            image(r, c, 1) = min(255, static_cast<int>(image(r, c, 1) * 1.2));
-            image(r, c, 2) /= 1.2; 
-        }
+  for (int r = 0; r < image.width; r++) {
+    for (int c = 0; c < image.height; c++) {
+      image(r, c, 0) = min(255, static_cast<int>(image(r, c, 0) * 1.2));
+      image(r, c, 1) = min(255, static_cast<int>(image(r, c, 1) * 1.2));
+      image(r, c, 2) /= 1.2; 
     }
+  }
 }
 
 // 14] TV Scanlines
-
-void applyScanlineTVFilter(Image &image)
-{
-    Image result = image;
-    for (int r = 0; r < image.height; r += 2)
-    {
-        for (int c = 0; c < image.width; c++)
-        {
-            image(c, r, 0) *= 0.15;
-            image(c, r, 1) *= 0.15;
-            image(c, r, 2) *= 0.15;
-        }
+void ScanlineTV(Image &image){
+  Image result = image;
+  for (int r = 0; r < image.height; r += 3) {
+    for (int c = 0; c < image.width; c++) {
+      image(c, r, 0) *= 0.15;
+       image(c, r, 1) *= 0.15;
+       image(c, r, 2) *= 0.15;
     }
+  }
 }
 
 // 15] Purple
@@ -580,21 +515,7 @@ void oilPaint(Image& image) {
 }
 
 
- 
-
-int main() {
-    string photo;
-    int choice;
-    string answer;
-
-    cout << "             >> Welcome to <PixelLab> Photo Editor! <<\n\n";
-    cout << " Enter Image's Name [with extension]: ";
-    getline(cin, photo);
-
-    Image image(photo);
-    Image tempimage; 
-  string tempphoto = "tempphoto.jpg"; 
-
+void Menu(){
   cout << "\n                          ~< Filters List >~            \n\n";
   cout << "                    1] Gray scale       2] Black & White  \n";
   cout << "                    3] Invert colors    4] Frame          \n";
@@ -603,115 +524,128 @@ int main() {
   cout << "                    9] Merge           10] detect Edges   \n";
   cout << "                   11] Crop            12] Blur           \n";
   cout << "                   13] sunlight        14] TV effect      \n";
-  cout << "                   15] Purple          16] Infrared       \n";
-  cout << "                   17] Skew            18] Oil paint      \n\n";
+  cout << "                   15] Purple          16] Infrared       \n";}
+
+void New(Image& image){
+  cout << " Enter Image's Name [with extension]: ";
+  getline(cin, photo);
+  image.loadNewImage(photo);
+}
+void save(Image& image){
+  cout << " Do you want to save as a copy?\n ";
+  cin >> answer;
+  if (answer[0] == 'y' || answer[0] == 'Y') {
+    string newphoto;
+    cout << "\n Enter The New Name [with wanted extension]: ";
+    cin.ignore();
+    getline(cin, newphoto);
+    image.saveImage(newphoto);
+  }
+  else   image.saveImage(photo);
+  cout << "\n >> Image saved successfully! " << endl;
+}
+  
+int main() {
+  Image image;
+  string photo;
+  int choice;
+  string answer = "";
+  cout << "             >> Welcome to <PixelLab> Photo Editor! <<\n\n";
+  New();
   do {
-        cout << " chose Filter's number: ";
-        cin >> choice;
-        switch (choice) {
-            case 1:
-                grayscale(image);
-                break;
-            case 2:
-                Black_White(image);
-                break;
-            case 3:
-                invert(image);
-                break;
-            case 4:
-                frame(image);
-                break;
-            case 5: 
-                int M;
-                cout << " 1] Horizontal flip   2] Vertical flip\n ";
-                cin >> M;
-                if (M == 1)
-                  horizontal_flip(image);
-                else if (M == 2)
-                  vertical_flip(image);
-                else
-                  cout << "Invalid flip choice!\n";
-                break;
-            case 6:
-                Rotate(image);
-                break;
-            case 7:
-                brightness(image);
-                break;
-            case 8:
-                int w, h;
-                cout << " Original dimensions: [" << image.width << "x" << image.height << "]" << endl;
-                cout << " New width : ";
-                cin >> w;
-                cout << " New height : ";
-                cin >> h;
-                Resize(image, w, h);
-                break;
-            case 9:
-                merge(image); 
-                break;
-            case 10:
-                detectEdges(image);
-                break;
-            case 11:
-                crop(image);
-                break;
-            case 12:
-                blur(image);
-                break;
-            case 13:
-                sunlight(image);
-                break;
-            case 14:
-                ScanlineTV(image);
-                break;
-            case 15:
-                purple(image);
-                break;
-            case 16:
-                infrared(image);
-            case 17:
-                skew(image);
-                break;
-
-            case 18:
-                oilPaint(image);
-                break;
-
-            default:
-                cout << "=> Invalid choice!\n";
-                break;
-        }
-
-        choice = 0;
-
-        tempimage = image;
-        tempimage.saveImage(tempphoto);
-        system(tempphoto.c_str());
-
-        cout << " Do you want to apply another filter?\n ";
-        cin >> answer;
-        remove("tempphoto.jpg");
-
-    } while (answer[0] == 'y' || answer[0] == 'Y');
-
-    remove("tempphoto.jpg");
-
-    cout << " Do you want to save as a copy?\n ";
-    cin >> answer;
-
-    if (answer[0] == 'y' || answer[0] == 'Y') {
-        string newphoto;
-        cout << "\n Enter New Image Name [with wanted extension]: ";
-        cin.ignore();
-        getline(cin, newphoto);
-        image.saveImage(newphoto);
-    } else {
-        image.saveImage(photo);
+    Menu();      
+    if(choice!= 00){
+      cout << "                   20 ] New photo       21 ] save photo     \n"; 
+      cout << "                               00 ] Exit     \n"
     }
-
-    cout << "\n >> Image saved successfully! " << endl;
-    cout << "\n                << Thank you for using our program! >>\n" << endl;
-
-    return 0;
-}  
+    cout << "\n chose Option's number : ";
+    cin >> choice;
+    switch (choice) {
+       case 1:
+          grayscale(image);
+          break;
+       case 2:
+          Black_White(image);
+          break;
+       case 3:
+          invert(image);
+          break;
+       case 4:
+          frame(image);
+          break;
+       case 5:
+          int M;
+          cout << " 1] Horizontal flip   2] Vertical flip\n ";
+          cin >> M;
+          if (M == 1)
+          horizontal_flip(image);
+          else if (M == 2)
+          vertical_flip(image);
+          else  cout << "Invalid flip choice!\n";
+          break;
+       case 6:
+          Rotate(image);
+          break;
+       case 7:
+          brightness(image);
+          break;
+       case 8:
+          int w, h;
+          cout << " Original dimensions: [" << image.width << "x" << image.height << "]" << endl;
+          cout << " New width : ";
+          cin >> w;
+          cout << " New height : ";
+          cin >> h;
+          Resize(image, w, h);
+          break;
+       case 9:
+          Merge(image);
+          break;
+       case 10:
+          detectEdges(image);
+          break;
+       case 11:
+          crop(image);
+          break;
+       case 12:
+          blur(image);
+          break;
+       case 13:
+          sunlight(image);
+          break;
+       case 14:
+          ScanlineTV(image);
+          break;
+       case 15:
+          purple(image);
+          break;
+       case 00:
+           cout << " Do you want to save Modified photo?\n ";
+           cin >> answer;
+           if (answer[0] == 'y' || answer[0] == 'Y') save();
+           break;   
+       case 20:
+           cout << " Do you want to save Modified photo?\n ";
+           cin >> answer;
+           if (answer[0] == 'y' || answer[0] == 'Y') save();
+           New();
+           break;
+       case 21:
+           save();
+           break;
+       default:
+          cout << "=> Invalid choice!\n";
+          break;
+    } 
+    if(choice != 00 ||choice != 20){
+      string tempphoto = "tempphoto.jpg";
+      Image tempimage = image;
+      tempimage.saveImage(tempphoto);
+      system(tempphoto.c_str());
+    }
+  }
+  while (choice != 00);
+  remove("tempphoto.jpg");
+  cout << "\n                << Thank you for using our program! >>\n" << endl;
+  return 0;
+}
