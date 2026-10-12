@@ -10,9 +10,6 @@ Team members :
 
 #include "Image_Class.h"
 #include <filesystem>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
 
 using namespace std;
 
