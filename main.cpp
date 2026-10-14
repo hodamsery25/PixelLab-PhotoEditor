@@ -2,12 +2,13 @@
 FCAI-CU > 2nd Level > OOP > Assignment 1 > Image Filters
 Section : (15,16)
 Team members :
-20250666 Malak Mohamed  Filters: 1]Gray scale     5]Flip          9]Merge     13]Fix natural sunlight
+20250666 Malak Mohamed  Filters: 1]Gray scale     5]Flip          9]Merge     13]Fix natural sunlight+ 17 + 18
 20250693 Merna Hany     Filters: 2]Black & White  6]Rotate       10]Detect    14]Old TV Effect
 20250721 Hoda Ahmad     Filters: 3]Inverting      7]Brightness   11]Crop      15]purple effect
 20251051 Alaa Sayed     Filters: 4]Frame          8] Resize      12]Blur      16]Infrared photography
-*/
 
+Video link:https://youtu.be/_ktH6Mb4Pd0?si=x-5ojhk2wEm73VjX
+ */
 #include "Image_Class.h"
 #include <filesystem>
 
@@ -521,20 +522,20 @@ void Menu(){
   cout << "                   13] sunlight        14] TV effect      \n";
   cout << "                   15] Purple          16] Infrared       \n";}
 
-void New(Image& image, string photo){
+void New(Image& image, string& photo){
   cout << " Enter New Image's Name [with extension]: ";
-  cin.ignore();
   getline(cin, photo);
   image.loadNewImage(photo);
 }
 
-void save(Image& image, string photo, string& answer){
+void save(Image& image, string photo){
+  string answer;
   string newphoto;
   cout << " Do you want to save as a copy?\n ";
   cin >> answer;
+  cin.ignore(100,'\n');
   if (answer[0] == 'y' || answer[0] == 'Y') {
     cout << "\n Enter The New Name [with wanted extension]: ";
-    cin.ignore();
     getline(cin, newphoto);
     image.saveImage(newphoto);
   }
@@ -545,7 +546,8 @@ void save(Image& image, string photo, string& answer){
 
 int main() {
   Image image;
-  int choice;
+  Image tempimage;
+  int choice = 0;
   string answer = "";
   string photo;
   cout << "             >> Welcome to <PixelLab> Photo Editor! <<\n\n";
@@ -561,6 +563,8 @@ int main() {
     }
     cout << "\n Enter your choice : ";
     cin >> choice;
+    cin.ignore(100,'\n');
+    remove("tempphoto.jpg");
     switch (choice) {
        case 1:
           grayscale(image);
@@ -578,6 +582,7 @@ int main() {
           int M;
           cout << " 1] Horizontal flip   2] Vertical flip\n ";
           cin >> M;
+          cin.ignore(100,'\n');
           if (M == 1)
           horizontal_flip(image);
           else if (M == 2)
@@ -627,19 +632,21 @@ int main() {
            if(s==0) {
              cout << " Do you want to save Modified Image?\n ";
              cin >> answer;
-             if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+             cin.ignore(100,'\n');
+             if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo);
            }
            break;
        case 20:
            if(s==0) {
              cout << " Do you want to save Modified Image?\n ";
              cin >> answer;
-             if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo, answer);
+             cin.ignore(100,'\n');
+             if (answer[0] == 'y' || answer[0] == 'Y') save(image, photo);
            }
            New(image, photo);
            break;
        case 21:
-           save(image, photo, answer);
+           save(image, photo);
            s=1;
            break;
        default:
@@ -647,7 +654,7 @@ int main() {
           break;
     }
       string tempphoto = "tempphoto.jpg";
-      Image tempimage = image;
+      tempimage = image;
       tempimage.saveImage(tempphoto);
       if(!(choice == 00 || choice == 20 || choice == 21)){
        system(tempphoto.c_str());
@@ -655,7 +662,6 @@ int main() {
   if(choice != 21)s=0;
   }
   while (choice != 00);
-  remove("tempphoto.jpg");
   cout << "\n                << Thank you for using our program! >>\n" << endl;
   return 0;
 }
